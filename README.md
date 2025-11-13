@@ -1,11 +1,13 @@
 # Examen_DeGestionarNotas
 public class Gestionar Notas
 {
+    // Interfaz para cálculo de nota final
     public interface ICalculoNota
     {
         double CalcularNotaFinal();
     }
 
+    // Clase Alumno
     public class Alumno
     {
         public string Nombre { get; set; }
@@ -20,6 +22,7 @@ public class Gestionar Notas
         }
     }
 
+    // Clase Asignatura
     public class Asignatura
     {
         public string NombreAsignatura { get; set; }
@@ -34,6 +37,7 @@ public class Gestionar Notas
         }
     }
 
+    // Clase Matricula implementa ICalculoNota
     public class Matricula : ICalculoNota
     {
         public Alumno Alumno { get; set; }
@@ -47,7 +51,7 @@ public class Gestionar Notas
             NotasParciales = new List<double>();
         }
 
-        // Método de la interfaz
+        // Método de la interfaz: suma todas las notas de la lista
         public double CalcularNotaFinal()
         {
             double total = 0;
@@ -58,32 +62,26 @@ public class Gestionar Notas
             return total;
         }
 
-        // Sobrecarga del método
+        // Método sobrecargado: recibe 3 notas como parámetros
         public double CalcularNotaFinal(double n1, double n2, double n3)
         {
             return n1 + n2 + n3;
         }
 
-        // Mensaje según la nota
+        // Devuelve mensaje según rango de nota
         public string ObtenerMensajeNota(double notaFinal)
         {
-            if (notaFinal < 60)
-                return "Reprobado";
-            else if (notaFinal < 80)
-                return "Bueno";
-            else if (notaFinal < 90)
-                return "Muy Bueno";
-            else
-                return "Sobresaliente";
+            if (notaFinal < 60) return "Reprobado";
+            else if (notaFinal < 80) return "Bueno";
+            else if (notaFinal < 90) return "Muy Bueno";
+            else return "Sobresaliente";
         }
 
-        // Validar notas con excepciones
+        // Valida las notas según reglas del examen
         public void ValidarNotas(double n1, double n2, double n3)
         {
-            if (n1 + n2 > 30)
-                throw new ArgumentException("La suma de la nota 1 y la nota 2 no puede ser mayor a 30.");
-            if (n3 > 40)
-                throw new ArgumentException("La nota 3 no puede ser mayor a 40.");
+            if (n1 + n2 > 30) throw new ArgumentException("La suma de las notas 1 y 2 no puede ser mayor a 30.");
+            if (n3 > 40) throw new ArgumentException("La nota 3 no puede ser mayor a 40.");
         }
     }
 
@@ -93,47 +91,44 @@ public class Gestionar Notas
         {
             Console.WriteLine("=== Sistema de Gestión de Notas ===\n");
 
-            // Datos del alumno y asignatura
-            Alumno alumno = new Alumno("Luis Martínez", "202520678", "luis.martinez@univ.edu");
-            Asignatura asignatura = new Asignatura("Programación II", "Ing. Gabriela Torres", "Martes y Jueves 9:00-11:00");
+            // Inicializar alumno y asignatura
+            Alumno alumno = new Alumno("Lissy Barrera", "202520345", "lissy.barrera@univ.edu");
+            Asignatura asignatura = new Asignatura("Programación II", "Ing. Alis Barrera", "Lunes y Miércoles 9:00-11:00");
 
             Matricula matricula = new Matricula(alumno, asignatura);
 
             try
             {
-                Console.Write("Ingrese la nota del primer parcial: ");
-                double n1 = double.Parse(Console.ReadLine());
+                // Pedir 3 notas parciales
+                double[] notas = new double[3];
+                for (int i = 0; i < 3; i++)
+                {
+                    Console.Write($"Ingrese la nota del parcial {i + 1}: ");
+                    notas[i] = double.Parse(Console.ReadLine());
+                }
 
-                Console.Write("Ingrese la nota del segundo parcial: ");
-                double n2 = double.Parse(Console.ReadLine());
+                // Validar notas
+                matricula.ValidarNotas(notas[0], notas[1], notas[2]);
 
-                Console.Write("Ingrese la nota del tercer parcial: ");
-                double n3 = double.Parse(Console.ReadLine());
+                // Guardar notas en la lista
+                matricula.NotasParciales.AddRange(notas);
 
-                // Validar
-                matricula.ValidarNotas(n1, n2, n3);
+                // Calcular nota final de dos formas
+                double notaFinal1 = matricula.CalcularNotaFinal(); // por lista
+                double notaFinal2 = matricula.CalcularNotaFinal(notas[0], notas[1], notas[2]); // por parámetros
 
-                // Guardar notas
-                matricula.NotasParciales.Add(n1);
-                matricula.NotasParciales.Add(n2);
-                matricula.NotasParciales.Add(n3);
-
-                // Calcular notas finales (dos maneras)
-                double notaFinal1 = matricula.CalcularNotaFinal();
-                double notaFinal2 = matricula.CalcularNotaFinal(n1, n2, n3);
-
-                // Mostrar resultados
+                // Mostrar resumen
                 Console.WriteLine("\n--- Resumen del Alumno ---");
-                Console.WriteLine("Nombre: " + alumno.Nombre);
-                Console.WriteLine("Número de cuenta: " + alumno.NumeroCuenta);
-                Console.WriteLine("Correo: " + alumno.Email);
-                Console.WriteLine("Asignatura: " + asignatura.NombreAsignatura);
-                Console.WriteLine("Docente: " + asignatura.NombreDocente);
-                Console.WriteLine("Horario: " + asignatura.Horario);
+                Console.WriteLine($"Nombre: {alumno.Nombre}");
+                Console.WriteLine($"Número de cuenta: {alumno.NumeroCuenta}");
+                Console.WriteLine($"Correo: {alumno.Email}");
+                Console.WriteLine($"Asignatura: {asignatura.NombreAsignatura}");
+                Console.WriteLine($"Docente: {asignatura.NombreDocente}");
+                Console.WriteLine($"Horario: {asignatura.Horario}");
 
                 Console.WriteLine("\n--- Resultados de Notas ---");
-                Console.WriteLine("Nota final (lista): " + notaFinal1 + " - " + matricula.ObtenerMensajeNota(notaFinal1));
-                Console.WriteLine("Nota final (parámetros): " + notaFinal2 + " - " + matricula.ObtenerMensajeNota(notaFinal2));
+                Console.WriteLine($"Nota final (lista): {notaFinal1} - {matricula.ObtenerMensajeNota(notaFinal1)}");
+                Console.WriteLine($"Nota final (parámetros): {notaFinal2} - {matricula.ObtenerMensajeNota(notaFinal2)}");
             }
             catch (FormatException)
             {
@@ -145,7 +140,7 @@ public class Gestionar Notas
             }
             finally
             {
-                Console.WriteLine("\nFin del programa. Presione cualquier opción para salir del programa...");
+                Console.WriteLine("\nFin del programa. Presione cualquier tecla para salir...");
                 Console.ReadKey();
             }
         }
